@@ -27,14 +27,12 @@ function renderEvents(tbody, events) {
       buildCell(event.Location),
       buildCell(event.Date),
       (() => {
-        const cell = buildCell('X');
-          cell.onmouseover = (event) => {
-            cell.style.color = 'red';
-        };
-        cell.onmouseout = (event) => {
-            cell.style.color = '';
-        };
-        cell.addEventListener('click', () => removeOutreachEvent(event.id));
+        const cell = document.createElement('td');
+        const button = document.createElement('button');
+        button.setAttribute('aria-label', `Remove outreach event: ${event.Name ?? ''}`);
+        button.textContent = 'X';
+        button.addEventListener('click', () => removeOutreachEvent(event.id));
+        cell.appendChild(button);
         return cell;
       })()
     );
