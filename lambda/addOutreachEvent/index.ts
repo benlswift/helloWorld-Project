@@ -40,7 +40,8 @@ export const handler = async (event: { httpMethod?: string; body?: string | null
   };
 
   await client.send(new PutCommand({ TableName: tableName, Item: item }));
-  await snsClient.send(new PublishCommand({
+  try {
+    await snsClient.send(new PublishCommand({
     TopicArn: emailTopicArn,
     Subject: `Outreach event added: ${item.Name}`,
     Message: [
@@ -50,6 +51,9 @@ export const handler = async (event: { httpMethod?: string; body?: string | null
       `Date: ${item.Date}`,
     ].join('\n'),
   }));
+  } catch (error) {
+    console.error('Failed to send SNS notification', error);
+  }
 
   return {
     statusCode: 201,
