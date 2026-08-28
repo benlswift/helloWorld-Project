@@ -11,6 +11,12 @@ export const handler = async (event: { queryStringParameters?: { id?: string } |
     ? await client.send(new GetCommand({ TableName: tableName, Key: { id } }))
     : await client.send(new ScanCommand({ TableName: tableName }));
 
+    const sortEvents = (events: { Date: string }[]) => {
+      return events.sort((a, b) => (a.Date < b.Date ? 1 : a.Date > b.Date ? -1 : 0));
+    };
+
+  (result as any).Items = sortEvents((result as any).Items ?? []);
+
   const body = id ? (result as any).Item ?? null : (result as any).Items ?? [];
 
   return {
