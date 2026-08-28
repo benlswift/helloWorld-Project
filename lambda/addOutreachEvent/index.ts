@@ -1,9 +1,12 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
+import { PublishCommand, SNSClient } from '@aws-sdk/client-sns';
 import { randomUUID } from 'crypto';
 
 const client = DynamoDBDocumentClient.from(new DynamoDBClient({}));
+const snsClient = new SNSClient({});
 const tableName = process.env.TABLE_NAME as string;
+const emailTopicArn = process.env.EMAIL_TOPIC_ARN as string;
 
 export const handler = async (event: { httpMethod?: string; body?: string | null }) => {
   const headers = {
@@ -37,6 +40,16 @@ export const handler = async (event: { httpMethod?: string; body?: string | null
   };
 
   await client.send(new PutCommand({ TableName: tableName, Item: item }));
+  await snsClient.send(new PublishCommand({
+    TopicArn: emailTopicArn,
+    Subject: `Outreach event added: ${item.Name}`,
+    Message: [
+      'A new outreach event was added.',
+      `Name: ${item.Name}`,
+      `Location: ${item.Location}`,
+      `Date: ${item.Date}`,
+    ].join('\n'),
+  }));
 
   return {
     statusCode: 201,
