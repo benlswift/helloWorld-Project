@@ -1,0 +1,86 @@
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: linear-gradient(180deg, #f4f8ff 0%, #eaf2ff 100%);
+  color: #833599;
+}
+
+.site-header {
+  background: #0f4c81;
+  color: #ffffff;
+  padding: 2rem 1.5rem 1.5rem;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.site-header .bbc-logo {
+  display: block;
+  width: 100px;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto 1rem;
+}
+
+.site-header h1 {
+  margin: 0 0 0.5rem;
+  font-size: 2.5rem;
+}
+
+.site-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 400;
+  opacity: 0.9;
+}
+
+.site-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 200;
+  opacity: 0.9;
+  align-items: center;
+}
+
+.content-wrap {
+  max-width: 980px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.add-event-form {
+  background: #ffffff;
+  padding: 2rem;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 22px rgba(13, 44, 77, 0.12);
+}
+
+thead th {
+  background: #dbeafc;
+  color: #123a61;
+  text-align: left;
+  padding: 1rem;
+  font-size: 0.95rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+tbody td {
+  padding: 1rem;
+  border-top: 1px solid #e2ebf8;
+}
+
+tbody tr:nth-child(even) {
+  background: #f7fbff;
+}
+
