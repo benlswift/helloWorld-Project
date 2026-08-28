@@ -112,7 +112,7 @@ export class HelloWorldStack extends cdk.Stack {
     // Single deployment for site assets + generated config so prune doesn't delete either.
     new s3deploy.BucketDeployment(this, 'DeployHelloWorld', {
       sources: [
-        s3deploy.Source.asset(path.join(__dirname, '../site')),
+        s3deploy.Source.asset(path.join(__dirname, '../outreach-hub')),
         s3deploy.Source.data('config.js', `window.OUTREACH_API_URL = ${JSON.stringify(outreachEventsApi.url)};\nwindow.ADD_OUTREACH_EVENT_API_URL = ${JSON.stringify(addOutreachEventApi.url)};\nwindow.REMOVE_OUTREACH_EVENT_API_URL = ${JSON.stringify(removeOutreachEventApi.url)};`),
       ],
       destinationBucket: helloWorldBucket,
