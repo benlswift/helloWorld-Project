@@ -40,6 +40,12 @@ export const handler = async (event: { httpMethod?: string; body?: string | null
   };
   try {
     await client.send(new PutCommand({ TableName: tableName, Item: item }));
+  } catch (error) {
+    console.error('Failed to add item to DynamoDB', error);
+    return { statusCode: 500, headers, body: JSON.stringify({ message: 'Failed to add outreach event' }) };
+  }
+
+  try {
     await snsClient.send(new PublishCommand({
       TopicArn: emailTopicArn,
       Subject: `Outreach event added: ${item.Name}`,
@@ -51,8 +57,8 @@ export const handler = async (event: { httpMethod?: string; body?: string | null
       ].join('\n'),
     }));
   } catch (error) {
-    console.error('Failed to add item to DynamoDB', error);
-    return { statusCode: 500, headers, body: JSON.stringify({ message: 'Failed to add outreach event' }) };
+    // Item was created; avoid returning 500 to prevent retries creating duplicates.
+    console.error('Failed to publish SNS notification for outreach event', error);
   }
 
   return {
