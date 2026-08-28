@@ -16,6 +16,10 @@ export const handler = async (event: { httpMethod?: string; body?: string | null
     return { statusCode: 204, headers, body: '' };
   }
 
+  if (event.httpMethod !== 'DELETE') {
+    return { statusCode: 405, headers, body: JSON.stringify({ message: 'Method not allowed' }) };
+  }
+
   const id = (event as typeof event & { queryStringParameters?: { id?: string } | null })
     .queryStringParameters?.id;
   if (!id) {
@@ -26,7 +30,7 @@ export const handler = async (event: { httpMethod?: string; body?: string | null
 
   return {
     statusCode: 200,
-    body: JSON.stringify({ Id: id }),
+    body: JSON.stringify({ id }),
     headers
   };
 };
