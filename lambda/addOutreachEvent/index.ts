@@ -1,9 +1,12 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
+import { PublishCommand, SNSClient } from '@aws-sdk/client-sns';
 import { randomUUID } from 'crypto';
 
 const client = DynamoDBDocumentClient.from(new DynamoDBClient({}));
+const snsClient = new SNSClient({});
 const tableName = process.env.TABLE_NAME as string;
+const emailTopicArn = process.env.EMAIL_TOPIC_ARN as string;
 
 export const handler = async (event: { httpMethod?: string; body?: string | null }) => {
   const headers = {
@@ -35,8 +38,28 @@ export const handler = async (event: { httpMethod?: string; body?: string | null
     Location: input.Location,
     Date: input.Date,
   };
+  try {
+    await client.send(new PutCommand({ TableName: tableName, Item: item }));
+  } catch (error) {
+    console.error('Failed to add item to DynamoDB', error);
+    return { statusCode: 500, headers, body: JSON.stringify({ message: 'Failed to add outreach event' }) };
+  }
 
-  await client.send(new PutCommand({ TableName: tableName, Item: item }));
+  try {
+    await snsClient.send(new PublishCommand({
+      TopicArn: emailTopicArn,
+      Subject: `Outreach event added: ${item.Name}`,
+      Message: [
+        'A new outreach event was added.',
+        `Name: ${item.Name}`,
+        `Location: ${item.Location}`,
+        `Date: ${item.Date}`,
+      ].join('\n'),
+    }));
+  } catch (error) {
+    // Item was created; avoid returning 500 to prevent retries creating duplicates.
+    console.error('Failed to publish SNS notification for outreach event', error);
+  }
 
   return {
     statusCode: 201,
