@@ -23,15 +23,15 @@ function renderEvents(tbody, events) {
   const rows = events.map((event) => {
     const row = document.createElement('tr');
     row.append(
-      buildCell(event.Name),
+      buildEventCell(event),
       buildCell(event.Location),
       buildCell(event.Date),
       (() => {
         const cell = document.createElement('td');
         const button = document.createElement('button');
         button.setAttribute('aria-label', `Remove outreach event: ${event.Name ?? ''}`);
-        button.textContent = 'X';
-        button.addEventListener('click', () => removeOutreachEvent(event.id));
+        button.textContent = 'Remove';
+        button.addEventListener('click', () => removeOutreachEvent(event.id, button));
         cell.appendChild(button);
         return cell;
       })()
@@ -40,6 +40,15 @@ function renderEvents(tbody, events) {
   });
 
   tbody.replaceChildren(...rows);
+}
+
+function buildEventCell(event) {
+  const cell = document.createElement('td');
+  const link = document.createElement('a');
+  link.href = `event.html?id=${encodeURIComponent(event.id)}`;
+  link.textContent = event.Name ?? '';
+  cell.appendChild(link);
+  return cell;
 }
 
 function buildCell(value) {
@@ -101,9 +110,10 @@ async function addOutreachEvent() {
   }
 }
 
-async function removeOutreachEvent(id) {
+async function removeOutreachEvent(id, cell) {
   try {
     alert('Removing Event');
+    cell.textContent = 'Removing...';
     const response = await fetch(`${window.REMOVE_OUTREACH_EVENT_API_URL}?id=${id}`, {
       method: 'DELETE'
     });
