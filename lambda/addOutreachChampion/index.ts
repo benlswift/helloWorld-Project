@@ -18,6 +18,10 @@ export const handler = async (event: { httpMethod?: string; body?: string | null
     return { statusCode: 204, headers, body: '' };
   }
 
+  if (event.httpMethod !== 'POST') {
+    return { statusCode: 405, headers, body: JSON.stringify({ message: 'Method not allowed' }) };
+  }
+
   let input: { Name?: string; Location?: string; Role?: string; Email?: string };
   try {
     input = event.body ? JSON.parse(event.body) : {};
