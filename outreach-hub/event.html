@@ -11,7 +11,7 @@
 
 <body>
   <header class="site-header">
-    <a class="brand" href="index.html" aria-label="Back">BBC <span>Outreach Hub</span></a>
+    <a class="outreach" href="index.html" aria-label="BBC Outreach Hub">BBC <span>Outreach Hub</span></a>
     <a class="back-link" href="index.html">Back</a>
   </header>
 
@@ -23,6 +23,7 @@
         <p><span class="meta-label">Location</span><span id="event-location">Loading...</span></p>
       </div>
     </section>
+    <button onClick="updateForm(new URLSearchParams(window.location.search).get('id'))" id="update-event-button">Update Event</button>
   </main>
 
   <script src="config.js"></script>
