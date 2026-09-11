@@ -77,6 +77,27 @@ export class HelloWorldStack extends cdk.Stack {
       proxy: true,
     });
 
+    const outreachChampionsTable = new dynamodb.Table(this, 'OutreachChampionsTable', {
+      partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+    });
+
+    const getOutreachChampionsLambda = new NodejsFunction(this, 'GetOutreachChampionsLambda', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'handler',
+      entry: path.join(__dirname, '../lambda/getOutreachChampions/index.ts'),
+      environment: {
+        TABLE_NAME: outreachChampionsTable.tableName,
+      },
+    });
+    outreachChampionsTable.grantReadData(getOutreachChampionsLambda);
+
+    const outreachChampionsApi = new apigateway.LambdaRestApi(this, 'OutreachChampionsApi', {
+      handler: getOutreachChampionsLambda,
+      proxy: true,
+    });
+
     const addOutreachEventLambda = new NodejsFunction(this, 'AddOutreachEventLambda', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'handler',
@@ -91,6 +112,21 @@ export class HelloWorldStack extends cdk.Stack {
 
     const addOutreachEventApi = new apigateway.LambdaRestApi(this, 'AddOutreachEventApi', {
       handler: addOutreachEventLambda,
+      proxy: true,
+    });
+
+    const addOutreachChampionLambda = new NodejsFunction(this, 'AddOutreachChampionLambda', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'handler',
+      entry: path.join(__dirname, '../lambda/addOutreachChampion/index.ts'),
+      environment: {
+        TABLE_NAME: outreachChampionsTable.tableName,
+      },
+    });
+    outreachChampionsTable.grantWriteData(addOutreachChampionLambda);
+
+    const addOutreachChampionApi = new apigateway.LambdaRestApi(this, 'AddOutreachChampionApi', {
+      handler: addOutreachChampionLambda,
       proxy: true,
     });
 
@@ -109,11 +145,26 @@ export class HelloWorldStack extends cdk.Stack {
       proxy: true,
     });
 
+    const updateOutreachEventLambda = new NodejsFunction(this, 'UpdateOutreachEventLambda', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'handler',
+      entry: path.join(__dirname, '../lambda/updateOutreachEvent/index.ts'),
+      environment: {
+        TABLE_NAME: outreachEventsTable.tableName,
+      },
+    });
+    outreachEventsTable.grantWriteData(updateOutreachEventLambda);
+
+    const updateOutreachEventApi = new apigateway.LambdaRestApi(this, 'UpdateOutreachEventApi', {
+      handler: updateOutreachEventLambda,
+      proxy: true,
+    });
+
     // Single deployment for site assets + generated config so prune doesn't delete either.
     new s3deploy.BucketDeployment(this, 'DeployHelloWorld', {
       sources: [
-        s3deploy.Source.asset(path.join(__dirname, '../outreach-hub')),
-        s3deploy.Source.data('config.js', `window.OUTREACH_API_URL = ${JSON.stringify(outreachEventsApi.url)};\nwindow.ADD_OUTREACH_EVENT_API_URL = ${JSON.stringify(addOutreachEventApi.url)};\nwindow.REMOVE_OUTREACH_EVENT_API_URL = ${JSON.stringify(removeOutreachEventApi.url)};`),
+      s3deploy.Source.asset(path.join(__dirname, '../outreach-hub')),
+      s3deploy.Source.data('config.js', `window.OUTREACH_API_URL = ${JSON.stringify(outreachEventsApi.url)};\nwindow.OUTREACH_CHAMPIONS_API_URL = ${JSON.stringify(outreachChampionsApi.url)};\nwindow.ADD_OUTREACH_EVENT_API_URL = ${JSON.stringify(addOutreachEventApi.url)};\nwindow.REMOVE_OUTREACH_EVENT_API_URL = ${JSON.stringify(removeOutreachEventApi.url)};\nwindow.UPDATE_OUTREACH_EVENT_API_URL = ${JSON.stringify(updateOutreachEventApi.url)};\nwindow.ADD_OUTREACH_CHAMPION_API_URL = ${JSON.stringify(addOutreachChampionApi.url)};`),
       ],
       destinationBucket: helloWorldBucket,
     });
