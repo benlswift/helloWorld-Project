@@ -7,11 +7,43 @@ body {
 }
 
 .site-header {
-  display: flex;
-  justify-content: space-between;
-  padding: 1rem;
-  color: #fff;
   background: #0f4c81;
+  color: #ffffff;
+  padding: 2rem 1.5rem 1.5rem;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.site-header .bbc-logo {
+  display: block;
+  width: 100px;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto 1rem;
+  
+}
+
+.site-header h1 {
+  margin: 0 0 0.5rem;
+  font-size: 2.5rem;
+}
+
+.site-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 400;
+  opacity: 0.9;
+}
+
+.site-header .back-link {
+  display: inline-block;
+  margin-top: 1rem;
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: bold;
+  border: 1px solid #ffffff;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
 }
 
 .outreach,
