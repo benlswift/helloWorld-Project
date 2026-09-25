@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Details for a BBC Outreach Hub champion">
+  <title>Outreach Champion | BBC Outreach Hub</title>
+  <link rel="stylesheet" href="css/event.css">
+</head>
+
+<body>
+  <header class="site-header">
+    <a href="people.html"><img class="bbc-logo" src="bbc-logo-white-rgb.png" alt="BBC Outreach Hub Logo"></a>
+    <h1>BBC Outreach Hub</h1>
+    <h2>View and edit outreach champion</h2>
+    <a class="back-link" href="people.html">Back</a>
+  </header>
+
+  <main class="event-page">
+    <section class="event-hero" aria-labelledby="champion-name">
+      <h1 id="champion-name">Loading champion...</h1>
+      <div class="event-meta" aria-label="Outreach champion details">
+        <p><span class="meta-label">Location</span><span id="champion-location">Loading...</span></p>
+        <p><span class="meta-label">Role</span><span id="champion-role">Loading...</span></p>
+        <p><span class="meta-label">Email</span><a id="champion-email">Loading...</a></p>
+      </div>
+    </section>
+    <section class="event-hero champion-events" aria-labelledby="champion-events-heading">
+      <h2 id="champion-events-heading">Events</h2>
+      <ul id="champion-events-list">
+        <li>Loading events...</li>
+      </ul>
+    </section>
+    <button class="update-event-button" id="update-champion-button">Update Champion</button>
+  </main>
+
+  <script src="config.js"></script>
+  <script src="js/champion.js"></script>
+</body>
+
+</html>
