@@ -26,7 +26,7 @@ function renderPeople(tbody, champions) {
       buildPersonCell(champion),
       buildCell(champion.Location),
       buildCell(champion.Role),
-      buildCell(champion.Email),
+      buildEmailCell(champion.Email),
     );
     return row;
   });
@@ -37,7 +37,7 @@ function renderPeople(tbody, champions) {
 function buildPersonCell(champion) {
   const cell = document.createElement('td');
   const link = document.createElement('a');
-  link.href = `mailto:${champion.Email}`;
+  link.href = `champion.html?id=${encodeURIComponent(champion.id)}`;
   link.textContent = champion.Name ?? '';
   cell.appendChild(link);
   return cell;
@@ -46,6 +46,15 @@ function buildPersonCell(champion) {
 function buildCell(value) {
   const cell = document.createElement('td');
   cell.textContent = value ?? '';
+  return cell;
+}
+
+function buildEmailCell(email) {
+  const cell = document.createElement('td');
+  const link = document.createElement('a');
+  link.href = `mailto:${email ?? ''}`;
+  link.textContent = email ?? '';
+  cell.appendChild(link);
   return cell;
 }
 
@@ -107,6 +116,53 @@ async function addOutreachChampion() {
   await loadOutreachChampions();
 }
 
+async function updateChampion(championID, eventID) {
+    const nameElement = document.getElementById('champion-name');
+    const locationElement = document.getElementById('champion-location');
+    const roleElement = document.getElementById('champion-role');
+    const emailElement = document.getElementById('champion-email');
+
+    const name = nameElement.value;
+    const location = locationElement.value;
+    const role = roleElement.value;
+    const email = emailElement.value;
+  const button = document.getElementById('update-champion-button');
+  try {
+    button.disabled = true;
+    button.textContent = 'Updating...';
+    const response = await fetch(window.UPDATE_OUTREACH_CHAMPION_API_URL, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ id: championID, Name: name, Location: location, Role: role, Email: email })
+      
+    });
+    window.location.href = `champion.html?id=${encodeURIComponent(championID)}`;
+
+    if (!response.ok) {
+      throw new Error(`Request failed: ${response.status}`);
+    }
+  } catch (err) {
+    console.error(err);
+    alert('Failed to update outreach champion.');
+  } finally {
+    button.disabled = false;
+    button.textContent = 'Update Champion';
+  }
+}
+
+async function filterChampions() {
+  filterText = document.getElementById('filter-input').value.toLowerCase();
+  const tableRows = document.querySelectorAll('table tbody tr');
+  tableRows.forEach(row => {
+    const cells = Array.from(row.cells);
+    const matches = cells.some(cell => cell.textContent.toLowerCase().includes(filterText));
+    row.style.display = matches ? '' : 'none';
+  });
+}
+
 loadOutreachChampions();
 
 document.getElementById('add-champion-button').addEventListener('click', addOutreachChampion);
+document.getElementById('filter-input').addEventListener('input', filterChampions);

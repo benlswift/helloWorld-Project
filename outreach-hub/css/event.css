@@ -74,6 +74,22 @@ body {
   font-size: 2.5rem;
 }
 
+.champion-events {
+  margin-top: 1.5rem;
+}
+
+.champion-events h2 {
+  margin: 0 0 1rem;
+  font-size: 1.4rem;
+}
+
+.champion-events ul {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
 .event-hero #event-name {
   box-sizing: border-box;
   display: block;
@@ -117,7 +133,8 @@ body {
   text-transform: uppercase;
 }
 
-.event-meta input {
+.event-meta input,
+.event-meta select {
   box-sizing: border-box;
   width: 100%;
   padding: 0.75rem;

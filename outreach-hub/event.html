@@ -11,8 +11,8 @@
 
 <body>
 <header class="site-header">
-  <img href="index.html" class="bbc-logo" src="bbc-logo-white-rgb.png" alt="BBC Outreach Hub Logo">
-  <h1 href="index.html">BBC Outreach Hub</h1>
+   <a href="index.html"><img class="bbc-logo" src="bbc-logo-white-rgb.png" alt="BBC Outreach Hub Logo"></a>
+   <h1>BBC Outreach Hub</h1>
   <h2>Browse and edit outreach event</h2>
   <a class="back-link" href="index.html">Back</a>
 </header>
@@ -23,6 +23,7 @@
       <div class="event-meta" aria-label="Event details">
         <p><span class="meta-label">Date</span><time id="event-date">Loading...</time></p>
         <p><span class="meta-label">Location</span><span id="event-location">Loading...</span></p>
+        <p><span class="meta-label">People</span><span id="event-people">Loading...</span></p>
       </div>
     </section>
     <button onClick="updateForm(new URLSearchParams(window.location.search).get('id'))" class="update-event-button" id="update-event-button">Update Event</button>

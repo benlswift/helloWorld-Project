@@ -17,15 +17,15 @@ export const handler = async (event: { httpMethod?: string; body?: string | null
     return { statusCode: 204, headers, body: '' };
   }
 
-  let input: { id?: string; Name?: string; Location?: string; Date?: string };
+  let input: { id?: string; Name?: string; Location?: string; Date?: string; People?: string[] };
   try {
     input = event.body ? JSON.parse(event.body) : {};
   } catch {
     return { statusCode: 400, headers, body: JSON.stringify({ message: 'Invalid JSON body' }) };
   }
 
-  if (!input.id || !input.Name || !input.Location || !input.Date) {
-    return { statusCode: 400, headers, body: JSON.stringify({ message: 'Id, Name, Location and Date are required' }) };
+  if (!input.id || !input.Name || !input.Location || !input.Date || !input.People) {
+    return { statusCode: 400, headers, body: JSON.stringify({ message: 'Id, Name, Location, Date and People are required' }) };
   }
 
   const item = {
@@ -33,6 +33,7 @@ export const handler = async (event: { httpMethod?: string; body?: string | null
     Name: input.Name,
     Location: input.Location,
     Date: input.Date,
+    People: input.People ?? [],
   };
 
   try {
@@ -40,16 +41,18 @@ export const handler = async (event: { httpMethod?: string; body?: string | null
       TableName: tableName,
       Key: { id: item.id },
       ConditionExpression: 'attribute_exists(id)',
-      UpdateExpression: 'SET #name = :name, #location = :location, #date = :date',
+      UpdateExpression: 'SET #name = :name, #location = :location, #date = :date, #people = :people',
       ExpressionAttributeNames: {
         '#name': 'Name',
         '#location': 'Location',
         '#date': 'Date',
+        '#people': 'People',
       },
       ExpressionAttributeValues: {
         ':name': item.Name,
         ':location': item.Location,
         ':date': item.Date,
+        ':people': item.People,
       },
     }));
   } catch (error: any) {

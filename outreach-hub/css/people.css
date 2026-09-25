@@ -78,6 +78,16 @@ body {
   text-align: center;
 }
 
+.filter-champions {
+  background: #ffffff;
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  margin-left: 20px;
+  margin-right: 20px;
+  text-align: center;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
