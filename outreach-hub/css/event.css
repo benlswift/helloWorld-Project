@@ -1,17 +1,49 @@
 
 body {
   margin: 0;
-  color: #222;
-  background: #f4f4f4;
+  color: #000000;
+  background: linear-gradient(180deg, #f4f8ff 0%, #eaf2ff 100%);
   font-family: Arial, Helvetica, sans-serif;
 }
 
 .site-header {
-  display: flex;
-  justify-content: space-between;
-  padding: 1rem;
-  color: #fff;
   background: #0f4c81;
+  color: #ffffff;
+  padding: 2rem 1.5rem 1.5rem;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.site-header .bbc-logo {
+  display: block;
+  width: 100px;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto 1rem;
+  
+}
+
+.site-header h1 {
+  margin: 0 0 0.5rem;
+  font-size: 2.5rem;
+}
+
+.site-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 400;
+  opacity: 0.9;
+}
+
+.site-header .back-link {
+  display: inline-block;
+  margin-top: 1rem;
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: bold;
+  border: 1px solid #ffffff;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
 }
 
 .outreach,
@@ -33,7 +65,8 @@ body {
 .event-hero {
   padding: 2rem;
   background: #fff;
-  border: 1px solid #ddd;
+  border-radius: 12px;
+  box-shadow: 0 8px 22px rgba(13, 44, 77, 0.12);
 }
 
 .event-hero h1 {
@@ -41,11 +74,50 @@ body {
   font-size: 2.5rem;
 }
 
+.champion-events {
+  margin-top: 1.5rem;
+}
+
+.champion-events h2 {
+  margin: 0 0 1rem;
+  font-size: 1.4rem;
+}
+
+.champion-events ul {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.event-hero #event-name {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  margin: 0 0 2rem;
+  padding: 0.5rem 0.75rem;
+  color: #123a61;
+  background: #f7fbff;
+  border: 2px solid #b9cde5;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 2.5rem;
+  font-weight: bold;
+  line-height: 1.2;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.event-hero #event-name:focus {
+  outline: none;
+  border-color: #0f4c81;
+  box-shadow: 0 0 0 3px rgba(15, 76, 129, 0.16);
+}
+
 .event-meta {
   display: grid;
   gap: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid #ddd;
+  border-top: 1px solid #e2ebf8;
 }
 
 .event-meta p {
@@ -61,6 +133,41 @@ body {
   text-transform: uppercase;
 }
 
+.event-meta input,
+.event-meta select {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0.75rem;
+  color: #123a61;
+  font: inherit;
+  border: 1px solid #b9cde5;
+  border-radius: 4px;
+  background: #f7fbff;
+}
+
+.update-event-button {
+  display: block;
+  margin: 2rem auto 0;
+  padding: 0.75rem 1.5rem;
+  color: #ffffff;
+  background: #0f4c81;
+  border: none;
+  border-radius: 4px;
+  font: inherit;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.update-event-button:hover {
+  background: #08345c;
+}
+
+.update-event-button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
 @media (max-width: 600px) {
   .site-header {
     gap: 1rem;
@@ -71,7 +178,15 @@ body {
     margin: 2rem auto;
   }
 
+  .event-hero {
+    padding: 1.5rem;
+  }
+
   .event-hero h1 {
+    font-size: 2rem;
+  }
+
+  .event-hero #event-name {
     font-size: 2rem;
   }
 }
