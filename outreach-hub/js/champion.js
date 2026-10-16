@@ -4,6 +4,9 @@ const championRoleElement = document.getElementById('champion-role');
 const championEmailElement = document.getElementById('champion-email');
 const updateButton = document.getElementById('update-champion-button');
 const championEventsList = document.getElementById('champion-events-list');
+const eventSelect = document.getElementById('new-champion-event');
+const addEventButton = document.getElementById('add-champion-event-button');
+let loadedChampionName = '';
 
 function showChampionError(message) {
   championNameElement.textContent = message;
@@ -11,6 +14,10 @@ function showChampionError(message) {
   championRoleElement.textContent = '';
   championEmailElement.textContent = '';
   updateButton.disabled = true;
+  eventSelect.disabled = true;
+  addEventButton.disabled = true;
+  championEventsList.replaceChildren(buildEventListItem(message));
+  showEventOptions([], 'Events unavailable.');
 }
 
 async function loadChampion() {
@@ -41,6 +48,7 @@ async function loadChampion() {
     championEmailElement.textContent = champion.Email ?? '';
     championEmailElement.href = `mailto:${champion.Email ?? ''}`;
     document.title = `${champion.Name ?? 'Outreach Champion'} | BBC Outreach Hub`;
+    loadedChampionName = champion.Name ?? '';
     await loadChampionEvents(champion.id, champion.Name);
   } catch (error) {
     console.error(error);
@@ -49,6 +57,8 @@ async function loadChampion() {
 }
 
 async function loadChampionEvents(championId, championName) {
+  eventSelect.disabled = true;
+  addEventButton.disabled = true;
   try {
     const response = await fetch(window.OUTREACH_API_URL);
     if (!response.ok) {
@@ -56,6 +66,9 @@ async function loadChampionEvents(championId, championName) {
     }
 
     const events = await response.json();
+    showEventOptions(events, events.length ? 'Select an event' : 'No events available.');
+    eventSelect.disabled = !events.length;
+    addEventButton.disabled = !events.length;
     const matchingEvents = events.filter((event) =>
       (event.People ?? []).some((personName) =>
         personName === championId || personName.trim().toLowerCase() === championName.trim().toLowerCase()
@@ -71,7 +84,21 @@ async function loadChampionEvents(championId, championName) {
   } catch (error) {
     console.error(error);
     championEventsList.replaceChildren(buildEventListItem('Unable to load events.'));
+    showEventOptions([], 'Unable to load events.');
   }
+}
+
+function showEventOptions(events, message) {
+  const placeholder = document.createElement('option');
+  placeholder.value = '';
+  placeholder.textContent = message;
+  eventSelect.replaceChildren(placeholder, ...events.map((event) => {
+    const option = document.createElement('option');
+    option.value = event.id;
+    option.textContent = `${event.Name ?? 'Untitled event'}${event.Date ? ` (${event.Date})` : ''}`;
+    return option;
+  }));
+  eventSelect.value = '';
 }
 
 function buildEventListItem(event) {
@@ -112,6 +139,62 @@ function showChampionForm() {
   updateButton.onclick = updateChampion;
 }
 
+async function addEventToChampion() {
+  const championId = new URLSearchParams(window.location.search).get('id');
+  const eventId = eventSelect.value;
+
+  if (!eventId) {
+    alert('Select an event.');
+    return;
+  }
+
+  addEventButton.disabled = true;
+  eventSelect.disabled = true;
+  addEventButton.textContent = 'Adding...';
+  try {
+    const eventsResponse = await fetch(window.OUTREACH_API_URL);
+    if (!eventsResponse.ok) {
+      throw new Error(`Request failed: ${eventsResponse.status}`);
+    }
+    const events = await eventsResponse.json();
+    const event = events.find((item) => String(item.id) === eventId);
+    if (!event) {
+      throw new Error('Selected event no longer exists.');
+    }
+    const people = event.People ?? [];
+    if (people.some((person) => person === championId ||
+        person.trim().toLowerCase() === loadedChampionName.trim().toLowerCase())) {
+      alert('This champion is already assigned to the selected event.');
+      return;
+    }
+
+    const response = await fetch(window.UPDATE_OUTREACH_EVENT_API_URL, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: event.id,
+        Name: event.Name,
+        Location: event.Location,
+        Date: event.Date,
+        People: [...people, championId]
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Request failed: ${response.status}`);
+    }
+
+    await loadChampionEvents(championId, loadedChampionName);
+  } catch (error) {
+    console.error(error);
+    alert('Failed to add event to champion.');
+  } finally {
+    addEventButton.textContent = 'Add Event';
+    eventSelect.disabled = eventSelect.children.length <= 1;
+    addEventButton.disabled = eventSelect.disabled;
+  }
+}
+
 async function updateChampion() {
   const championId = new URLSearchParams(window.location.search).get('id');
   const name = document.getElementById('champion-name').value.trim();
@@ -147,4 +230,5 @@ async function updateChampion() {
 }
 
 updateButton.addEventListener('click', showChampionForm, { once: true });
+document.getElementById('add-champion-event-button').addEventListener('click', addEventToChampion);
 loadChampion();

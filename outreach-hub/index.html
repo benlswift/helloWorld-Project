@@ -14,10 +14,12 @@
    <h1>BBC Outreach Hub</h1>
     <h2>Browse and create outreach events</h2>
     <a class="champion-link"  href="people.html">Outreach Champions</a>
+    <a class="champion-link"  href="objectives.html">Objectives</a>
   </header>
 
   <main class="content-wrap">
-    <table>
+    <h2 id="upcoming-events-heading">Upcoming events</h2>
+    <table aria-labelledby="upcoming-events-heading">
       <thead>
         <tr>
           <th>Outreach Event</th>
@@ -26,7 +28,23 @@
           <th>Remove</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody id="upcoming-events">
+        <tr>
+          <td colspan="4">Loading outreach events...</td>
+        </tr>
+      </tbody>
+    </table>
+    <h2 id="past-events-heading">Past events</h2>
+    <table aria-labelledby="past-events-heading">
+      <thead>
+        <tr>
+          <th>Outreach Event</th>
+          <th>Location</th>
+          <th>Date</th>
+          <th>Remove</th>
+        </tr>
+      </thead>
+      <tbody id="past-events">
         <tr>
           <td colspan="4">Loading outreach events...</td>
         </tr>
@@ -43,7 +61,7 @@
   </div>
 
   <script src="config.js"></script>
-  <script src="js/index.js"></script>
+  <script src="js/index.js?v=3"></script>
 </body>
 
 </html>
