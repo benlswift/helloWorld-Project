@@ -175,11 +175,53 @@ export class HelloWorldStack extends cdk.Stack {
       proxy: true,
     });
 
+    const objectivesTable = new dynamodb.Table(this, 'ObjectivesTable', {
+      partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+    });
+
+    const getObjectivesLambda = new NodejsFunction(this, 'GetObjectivesLambda', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'handler',
+      entry: path.join(__dirname, '../lambda/getObjectives/index.ts'),
+      environment: {
+        TABLE_NAME: objectivesTable.tableName,
+      },
+    });
+    const getObjectivesApi = new apigateway.LambdaRestApi(this, 'GetObjectivesApi', {
+      handler: getObjectivesLambda,
+      proxy: true,
+    });
+    objectivesTable.grantReadData(getObjectivesLambda);
+
+
+
+    const keyResultsTable = new dynamodb.Table(this, 'KeyResultsTable', {
+      partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+    });
+
+    const getKeyResultsLambda = new NodejsFunction(this, 'GetKeyResultsLambda', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'handler',
+      entry: path.join(__dirname, '../lambda/getKeyResults/index.ts'),
+      environment: {
+        TABLE_NAME: keyResultsTable.tableName,
+      },
+    });
+    const getKeyResultsApi = new apigateway.LambdaRestApi(this, 'GetKeyResultsApi', {
+      handler: getKeyResultsLambda,
+      proxy: true,
+    });
+    keyResultsTable.grantReadData(getKeyResultsLambda);
+
     // Single deployment for site assets + generated config so prune doesn't delete either.
     new s3deploy.BucketDeployment(this, 'DeployHelloWorld', {
       sources: [
       s3deploy.Source.asset(path.join(__dirname, '../outreach-hub')),
-      s3deploy.Source.data('config.js', `window.OUTREACH_API_URL = ${JSON.stringify(outreachEventsApi.url)};\nwindow.OUTREACH_CHAMPIONS_API_URL = ${JSON.stringify(outreachChampionsApi.url)};\nwindow.ADD_OUTREACH_EVENT_API_URL = ${JSON.stringify(addOutreachEventApi.url)};\nwindow.REMOVE_OUTREACH_EVENT_API_URL = ${JSON.stringify(removeOutreachEventApi.url)};\nwindow.UPDATE_OUTREACH_EVENT_API_URL = ${JSON.stringify(updateOutreachEventApi.url)};\nwindow.UPDATE_OUTREACH_CHAMPION_API_URL = ${JSON.stringify(updateOutreachChampionApi.url)};\nwindow.ADD_OUTREACH_CHAMPION_API_URL = ${JSON.stringify(addOutreachChampionApi.url)};`),
+      s3deploy.Source.data('config.js', `window.OUTREACH_API_URL = ${JSON.stringify(outreachEventsApi.url)};\nwindow.OUTREACH_CHAMPIONS_API_URL = ${JSON.stringify(outreachChampionsApi.url)};\nwindow.ADD_OUTREACH_EVENT_API_URL = ${JSON.stringify(addOutreachEventApi.url)};\nwindow.REMOVE_OUTREACH_EVENT_API_URL = ${JSON.stringify(removeOutreachEventApi.url)};\nwindow.UPDATE_OUTREACH_EVENT_API_URL = ${JSON.stringify(updateOutreachEventApi.url)};\nwindow.UPDATE_OUTREACH_CHAMPION_API_URL = ${JSON.stringify(updateOutreachChampionApi.url)};\nwindow.ADD_OUTREACH_CHAMPION_API_URL = ${JSON.stringify(addOutreachChampionApi.url)};\nwindow.GET_OBJECTIVES_API_URL = ${JSON.stringify(getObjectivesApi.url)};\nwindow.GET_KEY_RESULTS_API_URL = ${JSON.stringify(getKeyResultsApi.url)};`),
       ],
       destinationBucket: helloWorldBucket,
     });

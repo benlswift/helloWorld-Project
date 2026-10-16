@@ -12,7 +12,6 @@ export const handler = async (event: { httpMethod?: string; body?: string | null
     'Access-Control-Allow-Methods': 'OPTIONS,PUT'
   };
 
-  // Browsers preflight JSON requests with an OPTIONS request; short-circuit before body validation.
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 204, headers, body: '' };
   }
