@@ -1,5 +1,12 @@
+function formatDate(date) {
+  const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
+  const parsedDate = new Date(date);
+  return parsedDate.toLocaleDateString('en-GB', options);
+}
+
 async function loadOutreachEvents() {
-  const tbody = document.querySelector('tbody');
+  const upcomingBody = document.getElementById('upcoming-events');
+  const pastBody = document.getElementById('past-events');
 
   try {
     const response = await fetch(window.OUTREACH_API_URL);
@@ -7,16 +14,34 @@ async function loadOutreachEvents() {
       throw new Error(`Request failed: ${response.status}`);
     }
     const events = await response.json();
-    renderEvents(tbody, events);
+    const today = new Date();
+    const todayDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    const upcoming = [];
+    const past = [];
+
+    for (const event of events) {
+      if (typeof event.Date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(event.Date) ||
+          !Number.isFinite(Date.parse(event.Date)) ||
+          new Date(event.Date).toISOString().slice(0, 10) !== event.Date) {
+        throw new Error(`Invalid date for outreach event: ${event.id}`);
+      }
+      (event.Date >= todayDate ? upcoming : past).push(event);
+    }
+
+    upcoming.sort((a, b) => a.Date.localeCompare(b.Date));
+    past.sort((a, b) => b.Date.localeCompare(a.Date));
+    renderEvents(upcomingBody, upcoming, 'No upcoming outreach events.');
+    renderEvents(pastBody, past, 'No past outreach events.');
   } catch (err) {
-    tbody.replaceChildren(buildMessageRow('Unable to load outreach events.'));
+    upcomingBody.replaceChildren(buildMessageRow('Unable to load outreach events.'));
+    pastBody.replaceChildren(buildMessageRow('Unable to load outreach events.'));
     console.error(err);
   }
 }
 
-function renderEvents(tbody, events) {
+function renderEvents(tbody, events, emptyMessage) {
   if (!events.length) {
-    tbody.replaceChildren(buildMessageRow('No outreach events found.'));
+    tbody.replaceChildren(buildMessageRow(emptyMessage));
     return;
   }
 
@@ -25,7 +50,7 @@ function renderEvents(tbody, events) {
     row.append(
       buildEventCell(event),
       buildCell(event.Location),
-      buildCell(event.Date),
+      buildCell(formatDate(event.Date)),
       (() => {
         const cell = document.createElement('td');
         const button = document.createElement('button');
