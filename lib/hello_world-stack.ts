@@ -59,7 +59,7 @@ export class HelloWorldStack extends cdk.Stack {
     const outreachEventsTable = new dynamodb.Table(this, 'OutreachEventsTable', {
       partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
     });
 
     const getOutreachEventsLambda = new NodejsFunction(this, 'GetOutreachEventsLambda', {
@@ -80,7 +80,7 @@ export class HelloWorldStack extends cdk.Stack {
     const outreachChampionsTable = new dynamodb.Table(this, 'OutreachChampionsTable', {
       partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
     });
 
     const getOutreachChampionsLambda = new NodejsFunction(this, 'GetOutreachChampionsLambda', {
@@ -178,7 +178,7 @@ export class HelloWorldStack extends cdk.Stack {
     const objectivesTable = new dynamodb.Table(this, 'ObjectivesTable', {
       partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
     });
 
     const getObjectivesLambda = new NodejsFunction(this, 'GetObjectivesLambda', {
@@ -200,7 +200,7 @@ export class HelloWorldStack extends cdk.Stack {
     const keyResultsTable = new dynamodb.Table(this, 'KeyResultsTable', {
       partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
     });
 
     const getKeyResultsLambda = new NodejsFunction(this, 'GetKeyResultsLambda', {
