@@ -152,35 +152,23 @@ async function addEventToChampion() {
   eventSelect.disabled = true;
   addEventButton.textContent = 'Adding...';
   try {
-    const eventsResponse = await fetch(window.OUTREACH_API_URL);
-    if (!eventsResponse.ok) {
-      throw new Error(`Request failed: ${eventsResponse.status}`);
-    }
-    const events = await eventsResponse.json();
-    const event = events.find((item) => String(item.id) === eventId);
-    if (!event) {
-      throw new Error('Selected event no longer exists.');
-    }
-    const people = event.People ?? [];
-    if (people.some((person) => person === championId ||
-        person.trim().toLowerCase() === loadedChampionName.trim().toLowerCase())) {
-      alert('This champion is already assigned to the selected event.');
-      return;
-    }
-
     const response = await fetch(window.UPDATE_OUTREACH_EVENT_API_URL, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        id: event.id,
-        Name: event.Name,
-        Location: event.Location,
-        Date: event.Date,
-        People: [...people, championId]
+        action: 'assignChampion',
+        id: eventId,
+        championId
       })
     });
 
     if (!response.ok) {
+      if (response.status === 409 || response.status === 404) {
+        const error = await response.json();
+        alert(error.message);
+        await loadChampionEvents(championId, loadedChampionName);
+        return;
+      }
       throw new Error(`Request failed: ${response.status}`);
     }
 

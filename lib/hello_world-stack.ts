@@ -53,7 +53,7 @@ export class HelloWorldStack extends cdk.Stack {
       displayName: 'Outreach Email Topic',
     });
     emailTopic.addSubscription(
-      new snsSubscriptions.EmailSubscription('ben.swift43@gmail.com')
+      new snsSubscriptions.EmailSubscription('ben.swift@bbc.co.uk')
     );
 
     const outreachEventsTable = new dynamodb.Table(this, 'OutreachEventsTable', {

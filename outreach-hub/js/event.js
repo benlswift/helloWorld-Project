@@ -142,10 +142,13 @@ async function updateEvent(eventID) {
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ id: eventID, Name: name, Location: location, Date: date, People: people })
+      body: JSON.stringify({ id: eventID, Name: name, Location: location, Date: date, People: people, ExpectedPeople: eventPeople })
       
     });
     if (!response.ok) {
+      if (response.status === 409) {
+        throw new Error('Event assignments changed. Reload the page before saving again.');
+      }
       throw new Error(`Request failed: ${response.status}`);
     }
     window.location.href = `event.html?id=${encodeURIComponent(eventID)}`;

@@ -85,7 +85,10 @@ test('puts all eight existing event dates in Past on 16 October 2026', async () 
   expect(upcoming.children).toHaveLength(1);
   expect(upcoming.children[0].children[0].textContent).toBe('No upcoming outreach events.');
   expect(past.children).toHaveLength(8);
-  expect(past.children.map(row => row.children[2].textContent)).toEqual(dates);
+     expect(past.children.map(row => row.children[2].textContent)).toEqual([
+     '13/10/2026', '06/10/2026', '26/06/2026', '23/06/2026',
+     '29/04/2026', '16/03/2026', '02/03/2026', '05/12/2025'
+   ]);
   expect(errors).not.toHaveBeenCalled();
 });
 

@@ -19,11 +19,16 @@ const selectedEvent = {
   People: ['other-champion']
 };
 
-async function setup(events = [selectedEvent], eventsOk = true, updateOk = true) {
+async function setup(events = [selectedEvent], eventsOk = true, updateStatus = 200) {
   const elements: Record<string, Element> = {};
   const getElementById = (id: string) => elements[id] ??= new Element();
   const fetch = jest.fn(async (url: string, options?: { method: string; body?: string }) => {
-    if (options?.method === 'PUT') return { ok: updateOk, status: updateOk ? 200 : 500 };
+    if (options?.method === 'PUT') return {
+      ok: updateStatus === 200, status: updateStatus,
+      json: async () => ({ message: updateStatus === 409
+        ? 'This champion is already assigned to the selected event.'
+        : 'Outreach event not found' })
+    };
     if (url === '/champions') return {
       ok: true, json: async () => [{ id: 'champion-1', Name: 'Alex' }]
     };
@@ -58,14 +63,14 @@ test('populates a labelled event selection with IDs and dates', async () => {
   ]);
 });
 
-test('adds selected champion by ID while preserving event fields and other people', async () => {
+test('requests atomic assignment by ID without sending a stale event or People array', async () => {
   const { elements, fetch, add } = await setup();
   elements['new-champion-event'].value = 'event-1';
   await add();
   const request = fetch.mock.calls.find(([, options]) => options?.method === 'PUT');
   expect(request?.[0]).toBe('/update-event');
   expect(JSON.parse(request?.[1]?.body ?? '{}')).toEqual({
-    ...selectedEvent, People: ['other-champion', 'champion-1']
+    action: 'assignChampion', id: 'event-1', championId: 'champion-1'
   });
   expect(elements['new-champion-event'].value).toBe('');
   expect(elements['add-champion-event-button'].disabled).toBe(false);
@@ -78,12 +83,16 @@ test('requires a selection', async () => {
   expect(fetch.mock.calls.some(([, options]) => options?.method === 'PUT')).toBe(false);
 });
 
-test.each(['champion-1', ' alex '])('prevents duplicate assignment for %s', async person => {
-  const { elements, add, fetch, alert } = await setup([{ ...selectedEvent, People: [person] }]);
+test.each([409, 404])('reports backend assignment rejection (%s) and refreshes the events', async status => {
+  const { elements, add, fetch, alert } = await setup([selectedEvent], true, status);
   elements['new-champion-event'].value = 'event-1';
   await add();
-  expect(alert).toHaveBeenCalledWith('This champion is already assigned to the selected event.');
-  expect(fetch.mock.calls.some(([, options]) => options?.method === 'PUT')).toBe(false);
+  expect(alert).toHaveBeenCalledWith(status === 409
+    ? 'This champion is already assigned to the selected event.'
+    : 'Outreach event not found');
+  expect(fetch.mock.calls.some(([, options]) => options?.method === 'PUT')).toBe(true);
+  expect(elements['new-champion-event'].value).toBe('');
+  expect(elements['add-champion-event-button'].disabled).toBe(false);
 });
 
 test.each([true, false])('disables selection when events are empty or fail (ok=%s)', async ok => {
@@ -96,7 +105,7 @@ test.each([true, false])('disables selection when events are empty or fail (ok=%
 });
 
 test('reports save failures and restores the controls', async () => {
-  const { elements, add, alert } = await setup([selectedEvent], true, false);
+  const { elements, add, alert } = await setup([selectedEvent], true, 500);
   elements['new-champion-event'].value = 'event-1';
   await add();
   expect(alert).toHaveBeenCalledWith('Failed to add event to champion.');
