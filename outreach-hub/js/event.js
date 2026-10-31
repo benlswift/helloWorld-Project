@@ -160,6 +160,17 @@ async function updateEvent(eventID) {
     button.textContent = 'Update Event';
   }
 }
+
+function checkFileSize(file) {
+  const maxFileSize = 4 * 1024 * 1024;
+
+  if (file.size > maxFileSize) {
+    alert('The file must be 4 MiB or smaller.');
+    return false;
+  }
+  return true;
+}
+
 async function uploadResource(event) {
   event.preventDefault();
   const eventID = new URLSearchParams(window.location.search).get('id');
@@ -171,6 +182,9 @@ async function uploadResource(event) {
   const file = fileInput.files[0];
   if (!file) {
     alert('Please select a file to upload.');
+    return;
+  }
+  if (!checkFileSize(file)) {
     return;
   }
 
@@ -190,6 +204,7 @@ async function uploadResource(event) {
       throw new Error(`Upload failed: ${response.status}`);
     }
     alert('Resource uploaded successfully.');
+    await showResources();
   } catch (err) {
     console.error(err);
     alert(err.message || 'Failed to upload resource.');
