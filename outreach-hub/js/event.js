@@ -160,5 +160,91 @@ async function updateEvent(eventID) {
     button.textContent = 'Update Event';
   }
 }
+async function uploadResource(event) {
+  event.preventDefault();
+  const eventID = new URLSearchParams(window.location.search).get('id');
+  if (!eventID) {
+    alert('No event was selected.');
+    return;
+  }
+  const fileInput = document.getElementById('resource-file');
+  const file = fileInput.files[0];
+  if (!file) {
+    alert('Please select a file to upload.');
+    return;
+  }
+
+  try {
+    if (!window.UPLOAD_RESOURCE_API_URL) {
+      throw new Error('The resource upload API is not configured.');
+    }
+    const uploadUrl = new URL(window.UPLOAD_RESOURCE_API_URL);
+    uploadUrl.searchParams.set('prefix', eventID);
+    uploadUrl.searchParams.set('fileName', file.name);
+    const response = await fetch(uploadUrl.toString(), {
+      method: 'POST',
+      headers: { 'Content-Type': file.type || 'application/octet-stream' },
+      body: file
+    });
+    if (!response.ok) {
+      throw new Error(`Upload failed: ${response.status}`);
+    }
+    alert('Resource uploaded successfully.');
+  } catch (err) {
+    console.error(err);
+    alert(err.message || 'Failed to upload resource.');
+  }
+}
+
+async function showResources(){
+  const eventID = new URLSearchParams(window.location.search).get('id');
+  if (!eventID) {
+    alert('No event was selected.');
+    return;
+  }
+  try {
+    if (!window.EVENT_RESOURCES_API_URL) {
+      throw new Error('The event resources API is not configured.');
+    }
+    const resourcesUrl = new URL(window.EVENT_RESOURCES_API_URL);
+    resourcesUrl.searchParams.set('prefix', `${eventID}/`);
+    const response = await fetch(resourcesUrl.toString());
+    if (!response.ok) {
+      throw new Error(`Failed to load resources: ${response.status}`);
+    }
+    const resources = await response.json();
+    if (!Array.isArray(resources.objects)) {
+      throw new Error('Invalid event resources response.');
+    }
+    const resourcesContainer = document.getElementById('resources-container');
+    if (resourcesContainer) {
+      const items = resources.objects.map(resource => {
+        if (!resource.url || !['https:', 'http:'].includes(new URL(resource.url).protocol)) {
+          throw new Error('Invalid resource file URL.');
+        }
+        const fileName = resource.key.slice(resource.key.lastIndexOf('/') + 1);
+        const item = document.createElement('p');
+        item.textContent = fileName;
+        const openButton = document.createElement('button');
+        openButton.type = 'button';
+        openButton.textContent = 'Open file';
+        openButton.className = 'open-resource-button';
+        openButton.setAttribute('aria-label', `Open ${fileName} in a new tab`);
+        openButton.addEventListener('click', () => {
+          window.open(resource.url, '_blank', 'noopener,noreferrer');
+        });
+        item.appendChild(openButton);
+        return item;
+      });
+      resourcesContainer.replaceChildren(...items);
+    }
+  } catch (err) {
+    console.error(err);
+    alert(err.message || 'Failed to load resources.');
+  }
+}
+
+document.getElementById('upload-resource-form').addEventListener('submit', uploadResource);
 
 loadEvent();
+showResources();
