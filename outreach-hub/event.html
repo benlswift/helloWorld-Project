@@ -10,12 +10,9 @@
 </head>
 
 <body>
-<header class="site-header">
-   <a href="index.html"><img class="bbc-logo" src="bbc-logo-white-rgb.png" alt="BBC Outreach Hub Logo"></a>
-   <h1>BBC Outreach Hub</h1>
-  <h2>Browse and edit outreach event</h2>
-  <a class="back-link" href="index.html">Back</a>
-</header>
+  <outreach-menu-bar active-page="index.html" subheader="Browse and edit outreach event">
+    <a slot="actions" href="index.html">Back</a>
+  </outreach-menu-bar>
 
   <main class="event-page">
     <section class="event-hero" aria-labelledby="event-name">
@@ -39,6 +36,7 @@
     </form>
   </div>
 
+  <script type="module" src="components/menu-bar.js"></script>
   <script src="config.js"></script>
   <script src="js/event.js?v=2"></script>
 </body>

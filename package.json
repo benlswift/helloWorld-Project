@@ -2,7 +2,9 @@
   "name": "hello_world",
   "version": "0.1.0",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && npm run build:hub",
+    "build:hub": "tsc --ignoreConfig --target ES2022 --module ES2022 --strict --skipLibCheck outreach-hub/components/menu-bar.ts && npm run build:styles",
+    "build:styles": "sass outreach-hub/components/menu-bar.module.scss outreach-hub/components/menu-bar.module.css --no-source-map",
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk"
@@ -14,6 +16,7 @@
     "@types/node": "^24.10.1",
     "aws-cdk": "2.1135.0",
     "jest": "^30",
+    "sass": "^1.107.1",
     "tsx": "^4.23.0",
     "typescript": "~7.0.2"
   },
