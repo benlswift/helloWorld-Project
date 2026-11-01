@@ -168,6 +168,30 @@ body {
   opacity: 0.7;
 }
 
+.open-resource-button {
+  margin-left: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  color: #ffffff;
+  background: #0f4c81;
+  border: none;
+  border-radius: 4px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.open-resource-button:hover {
+  background: #08345c;
+}
+
+.resources {
+  margin-top: 2rem;
+  padding: 1rem;
+  border: 1px solid #e2ebf8;
+  border-radius: 6px;
+  background: #f7fbff;
+  text-align: center;
+}
+
 @media (max-width: 600px) {
   .site-header {
     gap: 1rem;

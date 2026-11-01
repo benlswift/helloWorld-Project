@@ -28,6 +28,16 @@
     </section>
     <button onClick="updateForm(new URLSearchParams(window.location.search).get('id'))" class="update-event-button" id="update-event-button">Update Event</button>
   </main>
+  <div class="resources">
+    <h1>Resource Manager</h1>
+    <ul id="resources-container"></ul>
+    <h2>Upload Resource</h2>
+    <form id="upload-resource-form">
+      <label for="resource-file">File</label>
+      <input type="file" id="resource-file" name="file" required>
+      <button type="submit">Upload</button>
+    </form>
+  </div>
 
   <script src="config.js"></script>
   <script src="js/event.js?v=2"></script>

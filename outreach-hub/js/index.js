@@ -16,8 +16,8 @@ async function loadOutreachEvents() {
     const events = await response.json();
     const today = new Date();
     const todayDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-    const upcoming = [];
-    const past = [];
+    const upcomingEvents = [];
+    const pastEvents = [];
 
     for (const event of events) {
       if (typeof event.Date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(event.Date) ||
@@ -25,13 +25,13 @@ async function loadOutreachEvents() {
           new Date(event.Date).toISOString().slice(0, 10) !== event.Date) {
         throw new Error(`Invalid date for outreach event: ${event.id}`);
       }
-      (event.Date >= todayDate ? upcoming : past).push(event);
+      (event.Date >= todayDate ? upcomingEvents : pastEvents).push(event);
     }
 
-    upcoming.sort((a, b) => a.Date.localeCompare(b.Date));
-    past.sort((a, b) => b.Date.localeCompare(a.Date));
-    renderEvents(upcomingBody, upcoming, 'No upcoming outreach events.');
-    renderEvents(pastBody, past, 'No past outreach events.');
+    upcomingEvents.sort((a, b) => a.Date.localeCompare(b.Date));
+    pastEvents.sort((a, b) => b.Date.localeCompare(a.Date));
+    renderEvents(upcomingBody, upcomingEvents, 'No upcoming outreach events.');
+    renderEvents(pastBody, pastEvents, 'No past outreach events.');
   } catch (err) {
     upcomingBody.replaceChildren(buildMessageRow('Unable to load outreach events.'));
     pastBody.replaceChildren(buildMessageRow('Unable to load outreach events.'));
