@@ -9,13 +9,7 @@
 </head>
 
 <body>
-  <header class="site-header">
-   <a href="index.html"><img class="bbc-logo" src="bbc-logo-white-rgb.png" alt="BBC Outreach Hub Logo"></a>
-   <h1>BBC Outreach Hub</h1>
-    <h2>Browse and create outreach events</h2>
-    <a class="champion-link"  href="people.html">Outreach Champions</a>
-    <a class="champion-link"  href="objectives.html">Objectives</a>
-  </header>
+  <outreach-menu-bar active-page="index.html" subheader="Browse and create outreach events"></outreach-menu-bar>
 
   <main class="content-wrap">
     <h2 id="upcoming-events-heading">Upcoming events</h2>
@@ -60,6 +54,7 @@
     <button id="add-event-button">Add Outreach Event</button>
   </div>
   
+  <script type="module" src="components/menu-bar.js"></script>
   <script src="config.js"></script>
   <script src="js/index.js?v=3"></script>
 </body>

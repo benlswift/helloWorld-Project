@@ -10,12 +10,9 @@
 </head>
 
 <body>
-  <header class="site-header">
-    <a href="people.html"><img class="bbc-logo" src="bbc-logo-white-rgb.png" alt="BBC Outreach Hub Logo"></a>
-    <h1>BBC Outreach Hub</h1>
-    <h2>View and edit outreach champion</h2>
-    <a class="back-link" href="people.html">Back</a>
-  </header>
+  <outreach-menu-bar active-page="people.html" subheader="View and edit outreach champion">
+    <a slot="actions" href="people.html">Back</a>
+  </outreach-menu-bar>
 
   <main class="event-page">
     <section class="event-hero" aria-labelledby="champion-name">
@@ -40,6 +37,7 @@
     <button class="update-event-button" id="update-champion-button">Update Champion</button>
   </main>
 
+  <script type="module" src="components/menu-bar.js"></script>
   <script src="config.js"></script>
   <script src="js/champion.js?v=2"></script>
 </body>
