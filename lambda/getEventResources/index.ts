@@ -1,8 +1,12 @@
 import { S3Client, GetObjectCommand, paginateListObjectsV2 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { DynamoDBDocumentClient, GetCommand } from '@aws-sdk/lib-dynamodb';
 
 const s3Client = new S3Client({});
+const dynamoClient = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 const bucketName = process.env.BUCKET_NAME!;
+const tableName = process.env.TABLE_NAME!;
 
 interface S3Object {
   key: string;
@@ -18,10 +22,31 @@ export const handler = async (event: { queryStringParameters?: { prefix?: string
   };
 
   try {
-    const prefix = event.queryStringParameters?.prefix || '';
+    const prefix = event.queryStringParameters?.prefix?.replace(/\/+$/, '') || '';
+    if (!prefix || prefix.includes('/')) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ message: 'An event prefix is required' }),
+        headers,
+      };
+    }
+
+    const eventRecord = await dynamoClient.send(new GetCommand({
+      TableName: tableName,
+      Key: { id: prefix },
+      ProjectionExpression: 'id',
+    }));
+    if (!eventRecord.Item) {
+      return {
+        statusCode: 404,
+        body: JSON.stringify({ message: 'Outreach event not found' }),
+        headers,
+      };
+    }
+
     const objects: S3Object[] = [];
 
-    const paginator = paginateListObjectsV2({ client: s3Client }, { Bucket: bucketName, Prefix: prefix });
+    const paginator = paginateListObjectsV2({ client: s3Client }, { Bucket: bucketName, Prefix: `${prefix}/` });
 
     for await (const page of paginator) {
       if (page.Contents) {
@@ -48,7 +73,7 @@ export const handler = async (event: { queryStringParameters?: { prefix?: string
       statusCode: 200,
       body: JSON.stringify({
         bucket: bucketName,
-        prefix: prefix || 'root',
+        prefix,
         count: objects.length,
         objects,
       }),
