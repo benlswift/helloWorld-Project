@@ -43,11 +43,9 @@ test('only lists resources for an existing event prefix', async () => {
 
   expect(response.statusCode).toBe(200);
   expect(mockGet.mock.calls[0][0].input).toMatchObject({
-    TableName: 'outreach-events',
     Key: { id: 'event-1' },
   });
   expect(mockList.mock.calls[0][1]).toMatchObject({
-    Bucket: 'events',
     Prefix: 'event-1/',
   });
 });

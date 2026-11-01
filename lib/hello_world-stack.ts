@@ -66,7 +66,9 @@ export class HelloWorldStack extends cdk.Stack {
     const eventResourcesApi = new apigateway.LambdaRestApi(this, 'EventResourcesApi', {
       handler: getEventResourcesLambda,
       proxy: true,
-      authorizationType: apigateway.AuthorizationType.IAM,
+      defaultMethodOptions: {
+        authorizationType: apigateway.AuthorizationType.IAM,
+      },
     });
 
     const addEventResourceLambda = new NodejsFunction(this, 'AddEventResourceLambda', {
