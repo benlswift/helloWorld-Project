@@ -45,19 +45,30 @@ export class HelloWorldStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.RETAIN,
     });
 
+    const outreachEventsTable = new dynamodb.Table(this, 'OutreachEventsTable', {
+      partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
+    });
+
     const getEventResourcesLambda = new NodejsFunction(this, 'getEventResourcesLambda', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'handler',
       entry: path.join(__dirname, '../lambda/getEventResources/index.ts'),
       environment: {
         BUCKET_NAME: eventsBucket.bucketName,
+        TABLE_NAME: outreachEventsTable.tableName,
       },
     });
     eventsBucket.grantRead(getEventResourcesLambda);
+    outreachEventsTable.grantReadData(getEventResourcesLambda);
 
     const eventResourcesApi = new apigateway.LambdaRestApi(this, 'EventResourcesApi', {
       handler: getEventResourcesLambda,
       proxy: true,
+      defaultMethodOptions: {
+        authorizationType: apigateway.AuthorizationType.IAM,
+      },
     });
 
     const addEventResourceLambda = new NodejsFunction(this, 'AddEventResourceLambda', {
@@ -94,12 +105,6 @@ export class HelloWorldStack extends cdk.Stack {
     emailTopic.addSubscription(
       new snsSubscriptions.EmailSubscription('ben.swift@bbc.co.uk')
     );
-
-    const outreachEventsTable = new dynamodb.Table(this, 'OutreachEventsTable', {
-      partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
-      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-      removalPolicy: cdk.RemovalPolicy.RETAIN,
-    });
 
     const getOutreachEventsLambda = new NodejsFunction(this, 'GetOutreachEventsLambda', {
       runtime: lambda.Runtime.NODEJS_20_X,
