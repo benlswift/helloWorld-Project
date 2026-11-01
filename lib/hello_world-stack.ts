@@ -4,6 +4,7 @@ import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
 import * as path from 'path';
+import { execFileSync } from 'child_process';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
@@ -259,7 +260,24 @@ export class HelloWorldStack extends cdk.Stack {
     // Single deployment for site assets + generated config so prune doesn't delete either.
     new s3deploy.BucketDeployment(this, 'DeployHelloWorld', {
       sources: [
-      s3deploy.Source.asset(path.join(__dirname, '../outreach-hub')),
+      s3deploy.Source.asset(path.join(__dirname, '../outreach-hub'), {
+        exclude: ['experimental-event', 'experimental-event/**'],
+      }),
+      s3deploy.Source.asset(path.join(__dirname, '../frontend-event'), {
+        assetHashType: cdk.AssetHashType.OUTPUT,
+        bundling: {
+          image: cdk.DockerImage.fromRegistry('node:24'),
+          local: {
+            tryBundle(outputDir: string) {
+              execFileSync('npm', ['run', 'build:event', '--', outputDir], {
+                cwd: path.join(__dirname, '..'),
+                stdio: 'inherit',
+              });
+              return true;
+            },
+          },
+        },
+      }),
       s3deploy.Source.data('config.js', `window.OUTREACH_API_URL = ${JSON.stringify(outreachEventsApi.url)};\nwindow.EVENT_RESOURCES_API_URL = ${JSON.stringify(eventResourcesApi.url)};\nwindow.UPLOAD_RESOURCE_API_URL = ${JSON.stringify(addEventResourceApi.url)};\nwindow.OUTREACH_CHAMPIONS_API_URL = ${JSON.stringify(outreachChampionsApi.url)};\nwindow.ADD_OUTREACH_EVENT_API_URL = ${JSON.stringify(addOutreachEventApi.url)};\nwindow.REMOVE_OUTREACH_EVENT_API_URL = ${JSON.stringify(removeOutreachEventApi.url)};\nwindow.UPDATE_OUTREACH_EVENT_API_URL = ${JSON.stringify(updateOutreachEventApi.url)};\nwindow.UPDATE_OUTREACH_CHAMPION_API_URL = ${JSON.stringify(updateOutreachChampionApi.url)};\nwindow.ADD_OUTREACH_CHAMPION_API_URL = ${JSON.stringify(addOutreachChampionApi.url)};\nwindow.GET_OBJECTIVES_API_URL = ${JSON.stringify(getObjectivesApi.url)};\nwindow.GET_KEY_RESULTS_API_URL = ${JSON.stringify(getKeyResultsApi.url)};`),
       ],
       destinationBucket: helloWorldBucket,

@@ -32,6 +32,8 @@
     ]
   },
   "exclude": [
+    "frontend-event",
+    "test/experimental-event.test.ts",
     "node_modules",
     "cdk.out"
   ]
