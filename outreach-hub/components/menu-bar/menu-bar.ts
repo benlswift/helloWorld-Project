@@ -29,7 +29,7 @@ export class MenuBar extends HTMLElement {
   private render(): void {
     const style = document.createElement('link');
     style.rel = 'stylesheet';
-    style.href = 'components/menu-bar.module.css';
+    style.href = 'components/menu-bar/menu-bar.module.css';
 
     const header = document.createElement('header');
     const navigation = document.createElement('nav');

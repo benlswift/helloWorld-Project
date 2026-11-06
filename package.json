@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "scripts": {
     "build": "tsc && npm run build:hub",
-    "build:hub": "tsc --ignoreConfig --target ES2022 --module ES2022 --strict --skipLibCheck outreach-hub/components/menu-bar.ts && npm run build:styles",
-    "build:styles": "sass outreach-hub/components/menu-bar.module.scss outreach-hub/components/menu-bar.module.css --no-source-map",
+    "build:hub": "tsc --ignoreConfig --target ES2022 --module ES2022 --strict --skipLibCheck outreach-hub/components/menu-bar/menu-bar.ts outreach-hub/components/upload-item/upload-item.ts && npm run build:styles",
+    "build:styles": "sass outreach-hub/components/menu-bar/menu-bar.module.scss outreach-hub/components/menu-bar/menu-bar.module.css --no-source-map && sass outreach-hub/components/upload-item/upload-item.scss outreach-hub/components/upload-item/upload-item.css --no-source-map",
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk"
