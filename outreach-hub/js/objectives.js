@@ -1,6 +1,10 @@
 async function fetchObjectives() {
   try {
-    const response = await fetch(window.GET_OBJECTIVES_API_URL);
+    const [response, keyResults] = await Promise.all([
+      fetch(window.GET_OBJECTIVES_API_URL),
+      fetchKeyResults()
+    ]);
+
     if (!response.ok) {
       throw new Error(`Request failed: ${response.status}`);
     }
@@ -8,11 +12,10 @@ async function fetchObjectives() {
     if (!Array.isArray(data)) {
       throw new Error('Expected an objectives array.');
     }
-    const keyResults = data.length ? await fetchKeyResults() : [];
+
     for (const objective of data) {
-      const matchingResults = keyResults.filter(result => result?.ObjectiveID === objective.id);
-      renderObjective(objective, matchingResults);
-    }
+      renderObjective(objective, keyResults);
+    } 
   } catch (error) {
     console.error("Failed to fetch objectives:", error);
   }
