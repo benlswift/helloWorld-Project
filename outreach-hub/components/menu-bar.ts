@@ -40,7 +40,7 @@ export class MenuBar extends HTMLElement {
     brand.href = 'index.html';
     const title = document.createElement('h1');
     const image = document.createElement('img');
-    image.src = './bbc-logo-white-rgb.png';
+    image.src = './bbc-logo-black-rgb.png';
     image.alt = 'BBC Outreach Hub Logo';
     brand.append(image);
     title.textContent = ' Outreach Hub';
@@ -63,20 +63,24 @@ export class MenuBar extends HTMLElement {
       list.append(listItem);
     }
 
-    navigation.append(brand, list);
-    header.append(navigation);
+    const menuGroup = document.createElement('div');
+    menuGroup.className = 'menu-items';
+    menuGroup.append(list);
 
     const subheader = this.getAttribute('subheader');
     if (subheader) {
       const subtitle = document.createElement('h2');
       subtitle.className = 'subheader';
       subtitle.textContent = subheader;
-      header.append(subtitle);
+      navigation.append(subtitle);
     }
 
     const actions = document.createElement('slot');
     actions.name = 'actions';
-    header.append(actions);
+    menuGroup.append(actions);
+    navigation.prepend(brand);
+    navigation.append(menuGroup);
+    header.append(navigation);
     this.root.replaceChildren(style, header);
   }
 }
