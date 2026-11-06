@@ -1,7 +1,7 @@
 :root {
   --ink: #000000;
   --muted: #5c6f80;
-  --paper: linear-gradient(180deg, #f4f8ff 0%, #eaf2ff 100%);
+  --paper: rgb(238, 238, 238);
   --card: #ffffff;
   --line: #e2ebf8;
   --teal: #0f4c81;
