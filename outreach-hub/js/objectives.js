@@ -1,10 +1,6 @@
 async function fetchObjectives() {
   try {
-    const [response, keyResults] = await Promise.all([
-      fetch(window.GET_OBJECTIVES_API_URL),
-      fetchKeyResults()
-    ]);
-
+    const response = await fetch(window.GET_OBJECTIVES_API_URL);
     if (!response.ok) {
       throw new Error(`Request failed: ${response.status}`);
     }
@@ -12,10 +8,13 @@ async function fetchObjectives() {
     if (!Array.isArray(data)) {
       throw new Error('Expected an objectives array.');
     }
+    if (!data.length) {
+      renderObjectives(data, []);
+      return;
+    }
 
-    for (const objective of data) {
-      renderObjective(objective, keyResults);
-    } 
+    const keyResults = await fetchKeyResults();
+    renderObjectives(data, keyResults);
   } catch (error) {
     console.error("Failed to fetch objectives:", error);
   }
@@ -33,30 +32,123 @@ async function fetchKeyResults() {
   return data;
 }
 
-function renderObjective(objective, keyResults) {
-  const objectiveName = document.getElementById(`okr-name-${objective.id}`);
-  const objectiveDescription = document.getElementById(`okr-description-${objective.id}`);
-  if (!objective || typeof objective.Objective !== 'string' ||
-      typeof objective.id !== 'string' || !objective.id) {
-    throw new Error('Objective is missing its ID or objective text.');
-  }
-  const matchingResults = keyResults.filter(result => result?.ObjectiveID === objective.id);
-  if (matchingResults.some(result => typeof result.Result !== 'string')) {
-    throw new Error('Key result is missing its result text.');
-  }
-  objectiveName.textContent = objective.Objective;
-  objectiveDescription.replaceChildren();
-  if (!matchingResults.length) {
-    objectiveDescription.textContent = 'No key results found for this objective.';
+function renderObjectives(objectives, keyResults) {
+  const tableBody = document.getElementById('okr-table-body');
+  tableBody.replaceChildren();
+
+  if (!objectives.length) {
+    const row = tableBody.insertRow();
+    const cell = row.insertCell();
+    cell.colSpan = 3;
+    cell.textContent = 'No objectives found.';
     return;
   }
-  const list = document.createElement('ul');
-  for (const result of matchingResults) {
-    const item = document.createElement('li');
-    item.textContent = result.Result;
-    list.appendChild(item);
+
+  for (const objective of objectives) {
+    if (!objective || typeof objective.Objective !== 'string' ||
+        typeof objective.id !== 'string' || !objective.id) {
+      throw new Error('Objective is missing its ID or objective text.');
+    }
+
+    const matchingResults = keyResults.filter(result => result?.ObjectiveID === objective.id);
+    if (matchingResults.some(result => typeof result.Result !== 'string')) {
+      throw new Error('Key result is missing its result text.');
+    }
+
+    if (!matchingResults.length) {
+      const row = tableBody.insertRow();
+      const objectiveCell = row.insertCell();
+      objectiveCell.textContent = objective.Objective;
+      const noResultsCell = row.insertCell();
+      noResultsCell.colSpan = 2;
+      noResultsCell.textContent = 'No key results found for this objective.';
+      continue;
+    }
+
+    matchingResults.forEach((result, index) => {
+      const row = tableBody.insertRow();
+      if (index === 0) {
+        const objectiveCell = row.insertCell();
+        objectiveCell.rowSpan = matchingResults.length;
+        objectiveCell.textContent = objective.Objective;
+      }
+
+      const resultCell = row.insertCell();
+      resultCell.textContent = result.Result;
+      const progressCell = row.insertCell();
+      const progress = typeof result.Progress === 'number' && Number.isFinite(result.Progress)
+        ? result.Progress
+        : 0;
+
+      const progressBox = document.createElement('input');
+      progressBox.type = 'number';
+      progressBox.min = '0';
+      progressBox.max = '100';
+      progressBox.step = '1';
+      progressBox.value = String(progress);
+      progressBox.ariaLabel = `Progress for ${result.Result}`;
+      progressBox.style.borderColor = progressColour(progress);
+
+      const saveButton = document.createElement('button');
+      saveButton.type = 'button';
+      saveButton.textContent = 'Save';
+
+      const saveStatus = document.createElement('span');
+      saveStatus.ariaLive = 'polite';
+
+      saveButton.onclick = () => {
+        updateKeyResult(result, progressBox, saveButton, saveStatus);
+      };
+
+      const progressUnit = document.createElement('span');
+      progressUnit.textContent = '% ';
+
+      progressCell.append(progressBox, progressUnit, saveButton, saveStatus);
+    });
   }
-  objectiveDescription.appendChild(list);
+}
+
+function progressColour(progress) {
+  if (progress >= 75) return 'green';
+  if (progress >= 50) return 'orange';
+  return 'red';
+}
+
+async function updateKeyResult(keyResult, progressInput, saveButton, saveStatus) {
+  if (!progressInput.value || !progressInput.checkValidity()) {
+    progressInput.reportValidity();
+    return;
+  }
+  saveButton.disabled = true;
+  saveButton.textContent = 'Saving...';
+  saveStatus.textContent = '';
+  try {
+    const response = await fetch(window.SET_KEY_RESULTS_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        id: keyResult.id,
+        ObjectiveID: keyResult.ObjectiveID,
+        Progress: Number(progressInput.value),
+        Result: keyResult.Result
+      })
+    });
+    if (!response.ok) {
+      throw new Error(`Request failed: ${response.status}`);
+    }
+    const updatedKeyResult = await response.json();
+    keyResult.Progress = updatedKeyResult.Progress;
+    progressInput.value = String(updatedKeyResult.Progress);
+    saveButton.textContent = 'Saved';
+  } catch (err) {
+    console.error(err);
+    saveButton.textContent = 'Save';
+    saveStatus.textContent = 'Save failed. Try again.';
+  } finally {
+    saveButton.disabled = false;
+  }
 }
 
 // const starterObjectives = [
