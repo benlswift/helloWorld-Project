@@ -237,7 +237,7 @@ async function showResources(){
         if (!resource.url || !['https:', 'http:'].includes(new URL(resource.url).protocol)) {
           throw new Error('Invalid resource file URL.');
         }
-        const fileName = resource.key.slice(resource.key.lastIndexOf('/') + 1);
+        const fileName = resource.key.slice(resource.key.lastIndexOf('/') + 1, resource.key.lastIndexOf('.'));
         const item = document.createElement('p');
         item.textContent = fileName;
         const openButton = document.createElement('button');

@@ -256,11 +256,27 @@ export class HelloWorldStack extends cdk.Stack {
     });
     keyResultsTable.grantReadData(getKeyResultsLambda);
 
+    const setKeyResultsLambda = new NodejsFunction(this, 'SetKeyResultsLambda', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'handler',
+      entry: path.join(__dirname, '../lambda/setKeyResults/index.ts'),
+      environment: {
+        TABLE_NAME: keyResultsTable.tableName,
+      },
+    });
+    keyResultsTable.grantWriteData(setKeyResultsLambda);
+
+    const setKeyResultsApi = new apigateway.LambdaRestApi(this, 'SetKeyResultsApi', {
+      handler: setKeyResultsLambda,
+      proxy: true,
+    });
+    new cdk.CfnOutput(this, 'SetKeyResultsApiUrl', { value: setKeyResultsApi.url });
+
     // Single deployment for site assets + generated config so prune doesn't delete either.
     new s3deploy.BucketDeployment(this, 'DeployHelloWorld', {
       sources: [
       s3deploy.Source.asset(path.join(__dirname, '../outreach-hub')),
-      s3deploy.Source.data('config.js', `window.OUTREACH_API_URL = ${JSON.stringify(outreachEventsApi.url)};\nwindow.EVENT_RESOURCES_API_URL = ${JSON.stringify(eventResourcesApi.url)};\nwindow.UPLOAD_RESOURCE_API_URL = ${JSON.stringify(addEventResourceApi.url)};\nwindow.OUTREACH_CHAMPIONS_API_URL = ${JSON.stringify(outreachChampionsApi.url)};\nwindow.ADD_OUTREACH_EVENT_API_URL = ${JSON.stringify(addOutreachEventApi.url)};\nwindow.REMOVE_OUTREACH_EVENT_API_URL = ${JSON.stringify(removeOutreachEventApi.url)};\nwindow.UPDATE_OUTREACH_EVENT_API_URL = ${JSON.stringify(updateOutreachEventApi.url)};\nwindow.UPDATE_OUTREACH_CHAMPION_API_URL = ${JSON.stringify(updateOutreachChampionApi.url)};\nwindow.ADD_OUTREACH_CHAMPION_API_URL = ${JSON.stringify(addOutreachChampionApi.url)};\nwindow.GET_OBJECTIVES_API_URL = ${JSON.stringify(getObjectivesApi.url)};\nwindow.GET_KEY_RESULTS_API_URL = ${JSON.stringify(getKeyResultsApi.url)};`),
+      s3deploy.Source.data('config.js', `window.OUTREACH_API_URL = ${JSON.stringify(outreachEventsApi.url)};\nwindow.EVENT_RESOURCES_API_URL = ${JSON.stringify(eventResourcesApi.url)};\nwindow.UPLOAD_RESOURCE_API_URL = ${JSON.stringify(addEventResourceApi.url)};\nwindow.OUTREACH_CHAMPIONS_API_URL = ${JSON.stringify(outreachChampionsApi.url)};\nwindow.ADD_OUTREACH_EVENT_API_URL = ${JSON.stringify(addOutreachEventApi.url)};\nwindow.REMOVE_OUTREACH_EVENT_API_URL = ${JSON.stringify(removeOutreachEventApi.url)};\nwindow.UPDATE_OUTREACH_EVENT_API_URL = ${JSON.stringify(updateOutreachEventApi.url)};\nwindow.UPDATE_OUTREACH_CHAMPION_API_URL = ${JSON.stringify(updateOutreachChampionApi.url)};\nwindow.ADD_OUTREACH_CHAMPION_API_URL = ${JSON.stringify(addOutreachChampionApi.url)};\nwindow.GET_OBJECTIVES_API_URL = ${JSON.stringify(getObjectivesApi.url)};\nwindow.GET_KEY_RESULTS_API_URL = ${JSON.stringify(getKeyResultsApi.url)};\nwindow.SET_KEY_RESULTS_API_URL = ${JSON.stringify(setKeyResultsApi.url)};`),
       ],
       destinationBucket: helloWorldBucket,
     });

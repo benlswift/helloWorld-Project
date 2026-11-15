@@ -1,0 +1,23 @@
+@font-face {
+  font-family: "BBC Reith Sans";
+  src: url("../BBCReithSans_W_Rg.woff") format("woff");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "BBC Reith Sans";
+  src: url("../BBCReithSans_W_Bd.woff") format("woff");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+
+body,
+h1,
+h2,
+h3,
+strong {
+  font-family: "BBC Reith Sans", Helvetica, Arial, sans-serif;
+}
