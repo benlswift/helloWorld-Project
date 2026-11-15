@@ -97,9 +97,17 @@ table {
   box-shadow: 0 8px 22px rgba(13, 44, 77, 0.12);
 }
 
+.okr-table-wrap {
+  overflow-x: auto;
+}
+
+.okr-table-wrap table {
+  min-width: 640px;
+}
+
 thead th {
-  background: #dbeafc;
-  color: #123a61;
+  background: #ffffff;
+  color: #000000;
   text-align: left;
   padding: 1rem;
   font-size: 0.95rem;
